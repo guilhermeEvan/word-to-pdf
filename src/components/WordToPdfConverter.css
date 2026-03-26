@@ -1,0 +1,578 @@
+/* components/WordToPdfConverter.css */
+.converter-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.converter-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+.dropzone {
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fafafa;
+  margin-bottom: 20px;
+}
+
+.dropzone:hover {
+  border-color: #667eea;
+  background-color: #f5f3ff;
+}
+
+.dropzone.active {
+  border-color: #667eea;
+  background-color: #f5f3ff;
+  transform: scale(1.02);
+}
+
+.dropzone.has-file {
+  border-color: #48bb78;
+  background-color: #f0fdf4;
+}
+
+.dropzone-content {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.dropzone-text {
+  color: #666;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+.dropzone-subtext {
+  color: #999;
+  font-size: 12px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  position: relative;
+}
+
+.file-icon {
+  font-size: 40px;
+}
+
+.file-details {
+  flex: 1;
+  text-align: left;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 5px 0;
+  word-break: break-all;
+}
+
+.file-size {
+  font-size: 12px;
+  color: #666;
+  margin: 0;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+  padding: 5px;
+  transition: color 0.3s ease;
+}
+
+.remove-file:hover {
+  color: #f56565;
+}
+
+.error-message {
+  background-color: #fed7d7;
+  border-left: 4px solid #f56565;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.error-icon {
+  font-size: 18px;
+}
+
+.error-message p {
+  margin: 0;
+  color: #c53030;
+  font-size: 14px;
+}
+
+.success-message {
+  background-color: #c6f6d5;
+  border-left: 4px solid #48bb78;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-icon {
+  font-size: 18px;
+}
+
+.success-message p {
+  margin: 0;
+  color: #22543d;
+  font-size: 14px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.convert-button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.convert-button:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.convert-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.features {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.feature {
+  text-align: center;
+  flex: 1;
+}
+
+.feature-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.feature p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Adicione ao WordToPdfConverter.css */
+
+.settings-panel {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-panel h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  text-align: center;
+}
+
+.settings-group {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.settings-group label {
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+  min-width: 120px;
+}
+
+.setting-select,
+.setting-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.setting-select:hover,
+.setting-input:hover {
+  border-color: #667eea;
+}
+
+.setting-select:focus,
+.setting-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.page-range {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.page-input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.page-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.preview-control {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.preview-button {
+  background: none;
+  border: 1px solid #667eea;
+  color: #667eea;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.preview-button:hover {
+  background: #667eea;
+  color: white;
+}
+
+.preview-container {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.preview-container h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.preview-content {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3 {
+  margin-top: 0;
+}
+
+.preview-content p {
+  margin-bottom: 10px;
+}
+
+.preview-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.file-pages {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.feature {
+  text-align: center;
+  flex: 1;
+}
+
+.feature-icon {
+  font-size: 24px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.feature p {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .settings-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .settings-group label {
+    min-width: auto;
+  }
+  
+  .page-range {
+    justify-content: center;
+  }
+  
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Adicione ao WordToPdfConverter.css */
+.setting-hint {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.preview-content {
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1.5;
+  color: #333;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3,
+.preview-content h4,
+.preview-content h5,
+.preview-content h6 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.preview-content h1 { font-size: 24px; }
+.preview-content h2 { font-size: 20px; }
+.preview-content h3 { font-size: 18px; }
+.preview-content h4 { font-size: 16px; }
+.preview-content h5 { font-size: 14px; }
+.preview-content h6 { font-size: 12px; }
+
+.preview-content p {
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.preview-content strong,
+.preview-content b {
+  font-weight: bold;
+}
+
+.preview-content em,
+.preview-content i {
+  font-style: italic;
+}
+
+.preview-content u {
+  text-decoration: underline;
+}
+
+.preview-content ul,
+.preview-content ol {
+  margin: 10px 0;
+  padding-left: 30px;
+}
+
+.preview-content li {
+  margin-bottom: 5px;
+}
+
+.preview-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.preview-content td,
+.preview-content th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.preview-content th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.preview-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .converter-card {
+    padding: 20px;
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  .dropzone {
+    padding: 20px;
+  }
+  
+  .features {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .feature {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .feature-icon {
+    margin-bottom: 0;
+  }
+}
