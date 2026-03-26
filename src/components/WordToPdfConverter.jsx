@@ -1,5 +1,5 @@
-// components/WordToPdfConverter.jsx
-import React, { useState, useCallback } from 'react';
+// src/components/WordToPdfConverter.jsx
+//import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import mammoth from 'mammoth';
 import { jsPDF } from 'jspdf';
@@ -13,7 +13,7 @@ const WordToPdfConverter = () => {
   const [success, setSuccess] = useState(null);
   const [preview, setPreview] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
-  const [conversionMethod, setConversionMethod] = useState('styled');
+  const [conversionMethod] = useState('styled');
   const [pdfSettings, setPdfSettings] = useState({
     pageSize: 'a4',
     orientation: 'portrait',
@@ -21,7 +21,7 @@ const WordToPdfConverter = () => {
     margin: 20,
     preserveFormatting: true
   });
-  const [pageRange, setPageRange] = useState({
+  const [pageRange] = useState({
     start: 1,
     end: 1,
     totalPages: 1
@@ -35,11 +35,9 @@ const WordToPdfConverter = () => {
       setError(null);
       setSuccess(null);
       
-      // Gerar preview com estilos
       try {
         const arrayBuffer = await selectedFile.arrayBuffer();
         
-        // Configuração para preservar estilos
         const options = {
           styleMap: [
             "p[style-name='Title'] => h1.title",
@@ -71,11 +69,6 @@ const WordToPdfConverter = () => {
         // Estimar número de páginas baseado no conteúdo
         const textLength = result.value.replace(/<[^>]*>/g, '').length;
         const estimatedPages = Math.max(1, Math.ceil(textLength / 2500));
-        setPageRange({
-          start: 1,
-          end: estimatedPages,
-          totalPages: estimatedPages
-        });
         
         setPreview(styledHtml);
       } catch (err) {
@@ -97,17 +90,15 @@ const WordToPdfConverter = () => {
   });
 
   const convertWithHtml2Canvas = async (htmlContent) => {
-    // Criar um elemento temporário para renderizar o HTML
     const container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = '-9999px';
     container.style.top = '-9999px';
-    container.style.width = pdfSettings.orientation === 'portrait' ? '595px' : '842px'; // A4 em pixels
+    container.style.width = pdfSettings.orientation === 'portrait' ? '595px' : '842px';
     container.style.backgroundColor = 'white';
     container.style.padding = `${pdfSettings.margin}px`;
     container.innerHTML = htmlContent;
     
-    // Adicionar estilos CSS para preservar a formatação
     const style = document.createElement('style');
     style.textContent = `
       .word-content {
@@ -169,7 +160,6 @@ const WordToPdfConverter = () => {
     document.body.appendChild(container);
     
     try {
-      // Aguardar o carregamento de imagens
       const images = container.querySelectorAll('img');
       await Promise.all(Array.from(images).map(img => {
         if (img.complete) return Promise.resolve();
@@ -179,7 +169,6 @@ const WordToPdfConverter = () => {
         });
       }));
       
-      // Capturar o conteúdo como canvas
       const canvas = await html2canvas(container, {
         scale: pdfSettings.quality === 'high' ? 3 : pdfSettings.quality === 'normal' ? 2 : 1.5,
         backgroundColor: '#ffffff',
@@ -187,7 +176,6 @@ const WordToPdfConverter = () => {
         useCORS: true
       });
       
-      // Criar PDF
       const pdf = new jsPDF({
         orientation: pdfSettings.orientation,
         unit: 'px',
@@ -200,11 +188,9 @@ const WordToPdfConverter = () => {
       let heightLeft = imgHeight;
       let position = 0;
       
-      // Adicionar primeira página
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pdf.internal.pageSize.getHeight();
       
-      // Adicionar páginas adicionais se necessário
       while (heightLeft > 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
@@ -225,27 +211,11 @@ const WordToPdfConverter = () => {
       format: pdfSettings.pageSize
     });
     
-    // Configurar estilos CSS para o PDF
-    const styles = {
-      h1: { fontSize: 24, fontWeight: 'bold', marginBottom: 12 },
-      h2: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
-      h3: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-      h4: { fontSize: 16, fontWeight: 'bold', marginBottom: 6 },
-      h5: { fontSize: 14, fontWeight: 'bold', marginBottom: 4 },
-      h6: { fontSize: 12, fontWeight: 'bold', marginBottom: 4 },
-      p: { fontSize: 12, marginBottom: 6 },
-      strong: { fontWeight: 'bold' },
-      em: { fontStyle: 'italic' },
-      u: { textDecoration: 'underline' }
-    };
-    
-    // Extrair texto com marcação de estilo
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     
-    // Processar elementos recursivamente
-    const processElement = (element, currentStyles = {}) => {
-      let text = '';
+    const processElement = (element) => {
+      let result = '';
       const tagName = element.tagName?.toLowerCase();
       
       if (element.nodeType === Node.TEXT_NODE) {
@@ -290,39 +260,31 @@ const WordToPdfConverter = () => {
         return items.join('\n') + '\n\n';
       }
       
-      // Processar conteúdo normalmente
       return Array.from(element.childNodes).map(child => processElement(child)).join('');
     };
     
     let textContent = processElement(tempDiv);
-    
-    // Dividir em linhas e adicionar ao PDF
     const lines = pdf.splitTextToSize(textContent, pdf.internal.pageSize.getWidth() - (pdfSettings.margin * 2));
     
     let yOffset = pdfSettings.margin;
     const pageHeight = pdf.internal.pageSize.getHeight();
     
-    // Aplicar formatação básica
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i];
       let fontSize = 12;
       let fontWeight = 'normal';
-      let fontStyle = 'normal';
       
-      // Detectar formatação no texto
       if (line.includes('**')) {
         fontWeight = 'bold';
         line = line.replace(/\*\*/g, '');
       }
       if (line.includes('*')) {
-        fontStyle = 'italic';
         line = line.replace(/\*/g, '');
       }
       if (line.includes('_')) {
         line = line.replace(/_/g, '');
       }
       
-      // Detectar cabeçalhos
       if (line.trim().startsWith('#')) {
         fontSize = 20;
         fontWeight = 'bold';
@@ -353,7 +315,6 @@ const WordToPdfConverter = () => {
     try {
       const arrayBuffer = await file.arrayBuffer();
       
-      // Configuração para preservar imagens e estilos
       const options = {
         styleMap: [
           "p[style-name='Title'] => h1.title",
@@ -379,7 +340,6 @@ const WordToPdfConverter = () => {
       const result = await mammoth.convertToHtml({ arrayBuffer }, options);
       let html = result.value;
       
-      // Adicionar classes CSS para estilização
       html = `
         <div class="word-content" style="font-family: 'Times New Roman', Times, serif; line-height: 1.5;">
           ${html}
@@ -388,14 +348,12 @@ const WordToPdfConverter = () => {
       
       let pdf;
       
-      // Escolher método de conversão baseado na qualidade desejada
       if (pdfSettings.preserveFormatting && conversionMethod === 'canvas') {
         pdf = await convertWithHtml2Canvas(html);
       } else {
         pdf = await convertWithStyling(html);
       }
       
-      // Salvar o PDF
       const fileName = file.name.replace(/\.(doc|docx)$/i, '_convertido.pdf');
       pdf.save(fileName);
       
@@ -417,21 +375,6 @@ const WordToPdfConverter = () => {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const handlePageRangeChange = (type, value) => {
-    let newValue = parseInt(value);
-    if (isNaN(newValue)) newValue = 1;
-    
-    setPageRange(prev => {
-      const updated = { ...prev };
-      if (type === 'start') {
-        updated.start = Math.max(1, Math.min(newValue, prev.end));
-      } else {
-        updated.end = Math.min(prev.totalPages, Math.max(newValue, prev.start));
-      }
-      return updated;
-    });
   };
 
   const handleSettingChange = (setting, value) => {
@@ -459,7 +402,6 @@ const WordToPdfConverter = () => {
                 <div className="file-details">
                   <p className="file-name">{file.name}</p>
                   <p className="file-size">{formatFileSize(file.size)}</p>
-                  <p className="file-pages">Páginas estimadas: {pageRange.totalPages}</p>
                 </div>
                 <button 
                   onClick={(e) => {
@@ -491,23 +433,6 @@ const WordToPdfConverter = () => {
         {file && (
           <div className="settings-panel">
             <h3>Configurações de Conversão</h3>
-            
-            <div className="settings-group">
-              <label>Método de Conversão:</label>
-              <select 
-                value={conversionMethod} 
-                onChange={(e) => setConversionMethod(e.target.value)}
-                className="setting-select"
-              >
-                <option value="styled">Estilizado (melhor formatação)</option>
-                <option value="canvas">Alta fidelidade (mais lento)</option>
-              </select>
-              <small className="setting-hint">
-                {conversionMethod === 'canvas' ? 
-                  'Preserva exatamente a aparência, mas pode ser mais lento' : 
-                  'Boa formatação com conversão rápida'}
-              </small>
-            </div>
 
             <div className="settings-group">
               <label>Tamanho do Papel:</label>
